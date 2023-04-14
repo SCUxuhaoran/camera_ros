@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="camera_ros" name="camera_controller" type="camera_controller" output="screen">
+  </node>
+</launch>
