@@ -154,8 +154,8 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
                 continue;
             }
             
-            //cv::circle(srcImage, Point(RightTop[0],RightTop[1]), 1, Scalar(0,255,0),2);//绿色
-            //cv::circle(srcImage, Point(LeftBottom[0],LeftBottom[1]), 1, Scalar(0,0,255),2);//红色
+            cv::circle(srcImage, Point(RightTop[0],RightTop[1]), 1, Scalar(0,255,0),2);//绿色
+            cv::circle(srcImage, Point(LeftBottom[0],LeftBottom[1]), 1, Scalar(0,0,255),2);//红色
             
             //垂直确定左上顶点
             for (int j = 0; j < circles.size(); j++) {
@@ -176,7 +176,8 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
                 cout<<"两直角边不等"<<endl;
                 break;
             }
-            //cv::circle(srcImage, Point(LeftTop[0],LeftTop[1]), 1, Scalar(255,0,0),2);
+            
+	    cv::circle(srcImage, Point(LeftTop[0],LeftTop[1]), 1, Scalar(255,0,0),2);
  
             //调整左上和右上顶点
             bool flag = true;

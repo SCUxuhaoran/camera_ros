@@ -47,9 +47,9 @@ int main() {
         cout << visualData.getLandmarkId() << "," << theta << "---[" << visualData.getVisualX() << "," << visualData.getVisualY()<< "]"  << endl;
         outFile << visualData.getVisualX() << "," << visualData.getVisualY()<< endl;
         
-        //namedWindow("show",WINDOW_NORMAL);
-        //imshow("show",srcImage);
-        //waitKey(20);
+        namedWindow("show",WINDOW_NORMAL);
+        imshow("show",srcImage);
+        waitKey(20);
 
         //uwb定位数据获取
 
