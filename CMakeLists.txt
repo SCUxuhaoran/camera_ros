@@ -64,7 +64,8 @@ aux_source_directory(src DIR_SRCS)
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/camera_ros_node.cpp)
 add_executable(camera_controller 
-src/Camera_ros_node.cpp
+src/main.cpp
+#src/Camera_ros_node.cpp
 src/Landmark.cpp
 src/LoadConfig.cpp
 src/LocalizeData.cpp

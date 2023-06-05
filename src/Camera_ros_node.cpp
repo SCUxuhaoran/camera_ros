@@ -97,6 +97,7 @@ bool Camera_start_object::ReadFromCamera()
     cap >> srcImage;
     if (!srcImage.empty())
     {
+	//cv::imwrite("/home/huanyu/robot_ws/src/camera_ros/src/1.jpg", srcImage);
         visualData = getVisualLocalizeData(srcImage);
 	if(visualData.getLandmarkId() > 0)
 	{

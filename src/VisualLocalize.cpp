@@ -78,7 +78,7 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
     for (int i = 0; i < contours.size(); i++){
         boundRect[i] = boundingRect(Mat(contours[i]));
         if (boundRect[i].width < targetRectMax && boundRect[i].width > targetRectMin && boundRect[i].height < targetRectMax && boundRect[i].height > targetRectMin) { //圆形外界矩阵长宽限制一致
-            //rectangle(srcImage, Point(boundRect[i].x,boundRect[i].y), Point(boundRect[i].x+boundRect[i].width,boundRect[i].y+boundRect[i].height),Scalar(0,255,0),1);
+            rectangle(srcImage, Point(boundRect[i].x,boundRect[i].y), Point(boundRect[i].x+boundRect[i].width,boundRect[i].y+boundRect[i].height),Scalar(0,255,0),1);
             targetRects.push_back(boundRect[i]);
         }
     }
@@ -114,6 +114,7 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
                 float c_y = tempRectStacks[j].y + (tempRectStacks[j].height / 2);
                 float c_r = (tempRectStacks[j].width + tempRectStacks[j].height) / 2;
                 Vec3f circle = Vec3f(c_x,c_y,c_r);
+                //cv::circle(srcImage, Point(c_x, c_y), 2, Scalar(0, 0, 255), 2);
                 temp_circles.push_back(circle);
             }
             all_circles.push_back(temp_circles);
@@ -133,10 +134,10 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
             for (int j = 0; j < circles.size(); j++) {
                 for (int k = 0; k < circles.size(); k++) {
                     float distance = sqrt(pow(circles[j][0] - circles[k][0], 2) + pow(circles[j][1] - circles[k][1], 2));
-                    if(j != k && distance < rectDistanceMin){
+                    /*if(j != k && distance < rectDistanceMin){
                         check_flag = false;
                         break;
-                    }
+                    }*/
                     if(distance > max_dis && distance > MIN_MAX_DIS){
                         max_dis = distance;
                         RightTop = circles[j];
@@ -145,17 +146,17 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
                         lb_i = k;
                     }
                 }
-                if(check_flag == false){
+                /*if(check_flag == false){
                     break;
-                }
+                }*/
             }
-            if(check_flag == false){
+            /*if(check_flag == false){
                 check_flag = true;
                 continue;
-            }
+            }*/
             
-            cv::circle(srcImage, Point(RightTop[0],RightTop[1]), 1, Scalar(0,255,0),2);//绿色
-            cv::circle(srcImage, Point(LeftBottom[0],LeftBottom[1]), 1, Scalar(0,0,255),2);//红色
+            //cv::circle(srcImage, Point(RightTop[0],RightTop[1]), 1, Scalar(0,255,0),2);//绿色
+            //cv::circle(srcImage, Point(LeftBottom[0],LeftBottom[1]), 1, Scalar(0,0,255),2);//红色
             
             //垂直确定左上顶点
             for (int j = 0; j < circles.size(); j++) {
@@ -174,10 +175,10 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
             double bian2 = sqrt(pow(LeftTop[0] - RightTop[0], 2) + pow(LeftTop[1] - RightTop[1], 2));
             if(fabs(bian1-bian2) > 20){
                 cout<<"两直角边不等"<<endl;
-                break;
+                //continue;
             }
             
-	    cv::circle(srcImage, Point(LeftTop[0],LeftTop[1]), 1, Scalar(255,0,0),2);
+	    //cv::circle(srcImage, Point(LeftTop[0],LeftTop[1]), 1, Scalar(255,0,0),2);
  
             //调整左上和右上顶点
             bool flag = true;
@@ -189,7 +190,8 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
             //求取俩向量夹角角度
             float lb_theta = atan2(cankao2.x - cankao1.x, cankao2.y - cankao1.y) - atan2(lbP.x - cankao1.x, lbP.y - cankao1.y);
             float rt_theta = atan2(cankao2.x - cankao1.x, cankao2.y - cankao1.y) - atan2(rtP.x - cankao1.x, rtP.y - cankao1.y);
-            if (lb_theta > CV_PI)
+            //cout << "lb_theta: " << lb_theta * 180.0 / CV_PI << ", " << "rt_theta: " << rt_theta * 180.0 / CV_PI << endl;
+	    if (lb_theta > CV_PI)
                 lb_theta -= 2 * CV_PI;
             if (lb_theta < -CV_PI)
                 lb_theta += 2 * CV_PI;
@@ -199,19 +201,30 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
                 rt_theta += 2 * CV_PI;
             lb_theta = lb_theta * 180.0 / CV_PI;
             rt_theta = rt_theta * 180.0 / CV_PI;
+	    //cout << "lb_theta: " << lb_theta << ", " << "rt_theta: " << rt_theta << endl;
             //全部改为顺时针方向,正值表达
             lb_theta = (lb_theta < 0) ? (lb_theta + 360.0) : lb_theta;
             rt_theta = (rt_theta < 0) ? (rt_theta + 360.0) : rt_theta;
+	    //cout << "lb_theta: " << lb_theta << ", " << "rt_theta: " << rt_theta << endl;
             if (lb_theta > rt_theta)
             {
                 flag = false;
             }
             if (!flag)
             {
+		cout << "switch right_top and left_bottom" << endl;
                 Vec3f temp = RightTop;
                 RightTop = LeftBottom;
                 LeftBottom = temp;
             }
+
+	    cv::circle(srcImage, Point(LeftTop[0], LeftTop[1]), 2, Scalar(255, 0, 0), 2);
+            cv::circle(srcImage, Point(RightTop[0], RightTop[1]), 2, Scalar(0, 255, 0), 2);
+            cv::circle(srcImage, Point(LeftBottom[0], LeftBottom[1]), 2, Scalar(0, 0, 255), 2);
+
+            cv::putText(srcImage, std::string("lt"), cv::Point2f(LeftTop[0], LeftTop[1]) + cv::Point2f(-10, 15), cv::FONT_HERSHEY_PLAIN, 1,  Scalar(255, 255, 255));
+            cv::putText(srcImage, std::string("rt"), cv::Point2f(RightTop[0], RightTop[1]) + cv::Point2f(-10, 15), cv::FONT_HERSHEY_PLAIN, 1,  Scalar(255, 255, 255));
+            cv::putText(srcImage, std::string("lb"), cv::Point2f(LeftBottom[0], LeftBottom[1]) + cv::Point2f(-10, 15), cv::FONT_HERSHEY_PLAIN, 1,  Scalar(255, 255, 255));
             
             
             Landmark tempLandmark;
@@ -325,14 +338,14 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
             }
             //判断二进制为1的数目和圆圈数目是否相等
             if (circlesNum != bitNum) {
-                //cout << "--------------ID识别异常" << endl;
-                //imwrite("../output/id-error.jpg", srcImage);
+                cout << "--------------ID识别异常" << endl;
+                imwrite("../output/id-error.jpg", srcImage);
 		//ss ERROR
-		//ss.clear();
-		//ss.str("");
-		//ss << "../output/id-error-" << ERRORnumber << ".jpg";
-		//imwrite(ss.str() ,srcImage);
-		//ERRORnumber++;
+		ss.clear();
+		ss.str("");
+		ss << "../output/id-error-" << ERRORnumber << ".jpg";
+		imwrite(ss.str() ,srcImage);
+		ERRORnumber++;
             }
             //根据位值计算序号
             for (int q = 0; q < dim * dim - 4; q++) {
@@ -357,11 +370,11 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
 
     if(localizeDatas.size() == 0){
 	//ss ERROR
-	//ss.clear();
-	//ss.str("");
-	//ss << "../output/none-" << ERRORnumber << ".jpg";
-	//imwrite(ss.str() ,srcImage);
-	//ERRORnumber++;
+	ss.clear();
+	ss.str("");
+	ss << "../output/none-" << ERRORnumber << ".jpg";
+	imwrite(ss.str() ,srcImage);
+	ERRORnumber++;
         cout << "--------------未检测到路标" << endl;
         preVisualData.setLandmarkId(-1);
         return preVisualData;
@@ -402,10 +415,10 @@ LocalizeData getVisualLocalizeData(Mat srcImage){
 	else{
             cout << "--------------id:" << " 配置异常" <<endl;
 	    //ss ERROR
-	    //ss.clear();
-	    //ss.str("");
-	    //ss << "../output/no-id-" << ERRORnumber << ".jpg";
-	    //imwrite(ss.str() ,srcImage);
+	    ss.clear();
+	    ss.str("");
+	    ss << "../output/no-id-" << ERRORnumber << ".jpg";
+	    imwrite(ss.str() ,srcImage);
 	    //ERRORnumber++;
             preVisualData.setLandmarkId(0);
             return preVisualData;
